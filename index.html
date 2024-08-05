@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruitment Process Satisfaction Survey</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Animations */
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation-name: fadeIn;
+            animation-duration: 1s;
+            animation-fill-mode: forwards;
+        }
+
+        .slide-in {
+            animation-name: slideIn;
+            animation-duration: 0.5s;
+            animation-fill-mode: forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="container mx-auto p-6 bg-white rounded-lg shadow-lg fade-in">
+        <h2 class="text-2xl font-bold text-center mb-6">שביעות רצון מתהליך הגיוס</h2>
+
+        <form id="surveyForm" class="space-y-4">
+            <div class="mb-4">
+                <label for="name" class="form-label">שם מלא <span class="text-red-500">*</span></label>
+                <input type="text" id="name" class="form-control" placeholder="הזן את שמך המלא">
+                <div class="invalid-feedback">
+                    יש להכניס שם מלא.
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="email" class="form-label">אימייל <span class="text-red-500">*</span></label>
+                <input type="email" id="email" class="form-control" placeholder="הזן את כתובת האימייל שלך">
+                <div class="invalid-feedback">
+                    יש להכניס כתובת אימייל תקינה.
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="rating" class="form-label">איך היית מדרג את תהליך הגיוס? <span class="text-red-500">*</span></label>
+                <select id="rating" class="form-select">
+                    <option value="">בחר</option>
+                    <option value="1">1 - גרוע</option>
+                    <option value="2">2 - לא טוב</option>
+                    <option value="3">3 - בסדר</option>
+                    <option value="4">4 - טוב</option>
+                    <option value="5">5 - מצוין</option>
+                </select>
+                <div class="invalid-feedback">
+                    יש לבחור דירוג.
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="comments" class="form-label">הערות נוספות</label>
+                <textarea id="comments" class="form-control" rows="4" placeholder="הזן את הערותיך (אופציונלי)"></textarea>
+            </div>
+
+            <div class="text-center">
+                <button type="button" onclick="validateForm()" class="btn btn-primary px-6">שלח</button>
+            </div>
+        </form>
+
+        <!-- Alerts -->
+        <div id="successAlert" class="alert alert-success mt-4 hidden slide-in" role="alert">
+            הטופס נשלח בהצלחה!
+        </div>
+        <div id="errorAlert" class="alert alert-danger mt-4 hidden slide-in" role="alert">
+            יש למלא את כל השדות הנדרשים.
+        </div>
+    </div>
+
+    <script>
+    document.getElementById('email').addEventListener('input', function() {
+    validateEmail();
+});
+
+function validateEmail() {
+    const email = document.getElementById('email');
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!emailPattern.test(email.value.trim())) {
+        email.classList.add('is-invalid');
+    } else {
+        email.classList.remove('is-invalid');
+    }
+}
+
+function validateForm() {
+    const name = document.getElementById('name');
+    const email = document.getElementById('email');
+    const rating = document.getElementById('rating');
+    const successAlert = document.getElementById('successAlert');
+    const errorAlert = document.getElementById('errorAlert');
+    let isValid = true;
+
+    // Reset alerts
+    successAlert.classList.add('hidden');
+    errorAlert.classList.add('hidden');
+
+    // Validate fields
+    if (name.value.trim() === '') {
+        name.classList.add('is-invalid');
+        isValid = false;
+    } else {
+        name.classList.remove('is-invalid');
+    }
+
+    validateEmail(); // Ensure email validation is applied
+
+    if (rating.value === '') {
+        rating.classList.add('is-invalid');
+        isValid = false;
+    } else {
+        rating.classList.remove('is-invalid');
+    }
+
+    // Show appropriate alert
+    if (isValid) {
+        successAlert.classList.remove('hidden');
+        successAlert.classList.add('slide-in');
+        document.getElementById('surveyForm').reset();
+    } else {
+        errorAlert.classList.remove('hidden');
+        errorAlert.classList.add('slide-in');
+    }
+}
+
+       function validateForm() {
+    const name = document.getElementById('name');
+    const email = document.getElementById('email');
+    const rating = document.getElementById('rating');
+    const successAlert = document.getElementById('successAlert');
+    const errorAlert = document.getElementById('errorAlert');
+    let isValid = true;
+
+    // Reset alerts
+    successAlert.classList.add('hidden');
+    errorAlert.classList.add('hidden');
+
+    // Validate fields
+    if (name.value.trim() === '') {
+        name.classList.add('is-invalid');
+        isValid = false;
+    } else {
+        name.classList.remove('is-invalid');
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email.value.trim())) {
+        email.classList.add('is-invalid');
+        isValid = false;
+    } else {
+        email.classList.remove('is-invalid');
+    }
+
+    if (rating.value === '') {
+        rating.classList.add('is-invalid');
+        isValid = false;
+    } else {
+        rating.classList.remove('is-invalid');
+    }
+
+    // Show appropriate alert
+    if (isValid) {
+        successAlert.classList.remove('hidden');
+        successAlert.classList.add('slide-in');
+        document.getElementById('surveyForm').reset();
+    } else {
+        errorAlert.classList.remove('hidden');
+        errorAlert.classList.add('slide-in');
+    }
+}
+
+    </script>
+
+</body>
+</html>
