@@ -37,7 +37,7 @@
     <div class="container mx-auto p-6 bg-white rounded-lg shadow-lg fade-in">
         <h2 class="text-2xl font-bold text-center mb-6">שביעות רצון מתהליך הגיוס</h2>
 
-        <form id="surveyForm" class="space-y-4">
+        <form id="surveyForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="mb-4">
                 <label for="name" class="form-label">שם מלא <span class="text-red-500">*</span></label>
                 <input type="text" id="name" class="form-control" placeholder="הזן את שמך המלא">
@@ -69,12 +69,12 @@
                 </div>
             </div>
 
-            <div class="mb-4">
+            <div class="mb-4 col-span-1 md:col-span-2">
                 <label for="comments" class="form-label">הערות נוספות</label>
                 <textarea id="comments" class="form-control" rows="4" placeholder="הזן את הערותיך (אופציונלי)"></textarea>
             </div>
 
-            <div class="text-center">
+            <div class="text-center col-span-1 md:col-span-2">
                 <button type="button" onclick="validateForm()" class="btn btn-primary px-6">שלח</button>
             </div>
         </form>
@@ -89,107 +89,60 @@
     </div>
 
     <script>
-    document.getElementById('email').addEventListener('input', function() {
-    validateEmail();
-});
+        document.getElementById('email').addEventListener('input', function() {
+            validateEmail();
+        });
 
-function validateEmail() {
-    const email = document.getElementById('email');
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
-    if (!emailPattern.test(email.value.trim())) {
-        email.classList.add('is-invalid');
-    } else {
-        email.classList.remove('is-invalid');
-    }
-}
+        function validateEmail() {
+            const email = document.getElementById('email');
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (!emailPattern.test(email.value.trim())) {
+                email.classList.add('is-invalid');
+            } else {
+                email.classList.remove('is-invalid');
+            }
+        }
 
-function validateForm() {
-    const name = document.getElementById('name');
-    const email = document.getElementById('email');
-    const rating = document.getElementById('rating');
-    const successAlert = document.getElementById('successAlert');
-    const errorAlert = document.getElementById('errorAlert');
-    let isValid = true;
+        function validateForm() {
+            const name = document.getElementById('name');
+            const email = document.getElementById('email');
+            const rating = document.getElementById('rating');
+            const successAlert = document.getElementById('successAlert');
+            const errorAlert = document.getElementById('errorAlert');
+            let isValid = true;
 
-    // Reset alerts
-    successAlert.classList.add('hidden');
-    errorAlert.classList.add('hidden');
+            // Reset alerts
+            successAlert.classList.add('hidden');
+            errorAlert.classList.add('hidden');
 
-    // Validate fields
-    if (name.value.trim() === '') {
-        name.classList.add('is-invalid');
-        isValid = false;
-    } else {
-        name.classList.remove('is-invalid');
-    }
+            // Validate fields
+            if (name.value.trim() === '') {
+                name.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                name.classList.remove('is-invalid');
+            }
 
-    validateEmail(); // Ensure email validation is applied
+            validateEmail(); // Ensure email validation is applied
 
-    if (rating.value === '') {
-        rating.classList.add('is-invalid');
-        isValid = false;
-    } else {
-        rating.classList.remove('is-invalid');
-    }
+            if (rating.value === '') {
+                rating.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                rating.classList.remove('is-invalid');
+            }
 
-    // Show appropriate alert
-    if (isValid) {
-        successAlert.classList.remove('hidden');
-        successAlert.classList.add('slide-in');
-        document.getElementById('surveyForm').reset();
-    } else {
-        errorAlert.classList.remove('hidden');
-        errorAlert.classList.add('slide-in');
-    }
-}
-
-       function validateForm() {
-    const name = document.getElementById('name');
-    const email = document.getElementById('email');
-    const rating = document.getElementById('rating');
-    const successAlert = document.getElementById('successAlert');
-    const errorAlert = document.getElementById('errorAlert');
-    let isValid = true;
-
-    // Reset alerts
-    successAlert.classList.add('hidden');
-    errorAlert.classList.add('hidden');
-
-    // Validate fields
-    if (name.value.trim() === '') {
-        name.classList.add('is-invalid');
-        isValid = false;
-    } else {
-        name.classList.remove('is-invalid');
-    }
-
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(email.value.trim())) {
-        email.classList.add('is-invalid');
-        isValid = false;
-    } else {
-        email.classList.remove('is-invalid');
-    }
-
-    if (rating.value === '') {
-        rating.classList.add('is-invalid');
-        isValid = false;
-    } else {
-        rating.classList.remove('is-invalid');
-    }
-
-    // Show appropriate alert
-    if (isValid) {
-        successAlert.classList.remove('hidden');
-        successAlert.classList.add('slide-in');
-        document.getElementById('surveyForm').reset();
-    } else {
-        errorAlert.classList.remove('hidden');
-        errorAlert.classList.add('slide-in');
-    }
-}
-
+            // Show appropriate alert
+            if (isValid) {
+                successAlert.classList.remove('hidden');
+                successAlert.classList.add('slide-in');
+                document.getElementById('surveyForm').reset();
+            } else {
+                errorAlert.classList.remove('hidden');
+                errorAlert.classList.add('slide-in');
+            }
+        }
     </script>
 
 </body>
