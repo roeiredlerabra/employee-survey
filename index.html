@@ -14,6 +14,11 @@
             100% { opacity: 1; }
         }
 
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
         @keyframes slideIn {
             0% { transform: translateY(-100%); }
             100% { transform: translateY(0); }
@@ -25,17 +30,34 @@
             animation-fill-mode: forwards;
         }
 
+        .fade-out {
+            animation-name: fadeOut;
+            animation-duration: 1s;
+            animation-fill-mode: forwards;
+        }
+
         .slide-in {
             animation-name: slideIn;
             animation-duration: 0.5s;
             animation-fill-mode: forwards;
         }
+
+        .success-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #28a745;
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
-    <div class="container mx-auto p-6 bg-white rounded-lg shadow-lg fade-in">
-        <h2 class="text-2xl font-bold text-center mb-6">שביעות רצון מתהליך הגיוס</h2>
+    <div class="container mx-auto p-6 bg-white rounded-lg shadow-lg fade-in relative">
+        <h2 id="title" class="text-2xl font-bold text-center mb-6">שביעות רצון מתהליך הגיוס</h2>
 
         <form id="surveyForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="mb-4">
@@ -74,15 +96,17 @@
                 <textarea id="comments" class="form-control" rows="4" placeholder="הזן את הערותיך (אופציונלי)"></textarea>
             </div>
 
-            <div class="text-center col-span-1 md:col-span-2">
-                <button type="button" onclick="validateForm()" class="btn btn-primary px-6">שלח</button>
+            <div id="submitButtonContainer" class="text-center col-span-1 md:col-span-2">
+                <button type="button" onclick="validateAndSubmitForm()" class="btn btn-primary px-6">שלח</button>
             </div>
         </form>
 
-        <!-- Alerts -->
-        <div id="successAlert" class="alert alert-success mt-4 hidden slide-in" role="alert">
+        <!-- Success Message -->
+        <div id="successMessage" class="success-message hidden">
             הטופס נשלח בהצלחה!
         </div>
+
+        <!-- Error Alert -->
         <div id="errorAlert" class="alert alert-danger mt-4 hidden slide-in" role="alert">
             יש למלא את כל השדות הנדרשים.
         </div>
@@ -104,16 +128,18 @@
             }
         }
 
-        function validateForm() {
+        function validateAndSubmitForm() {
             const name = document.getElementById('name');
             const email = document.getElementById('email');
             const rating = document.getElementById('rating');
-            const successAlert = document.getElementById('successAlert');
+            const comments = document.getElementById('comments');
+            const successMessage = document.getElementById('successMessage');
             const errorAlert = document.getElementById('errorAlert');
+            const submitButtonContainer = document.getElementById('submitButtonContainer');
             let isValid = true;
 
             // Reset alerts
-            successAlert.classList.add('hidden');
+            successMessage.classList.add('hidden');
             errorAlert.classList.add('hidden');
 
             // Validate fields
@@ -125,6 +151,9 @@
             }
 
             validateEmail(); // Ensure email validation is applied
+            if (email.classList.contains('is-invalid')) {
+                isValid = false;
+            }
 
             if (rating.value === '') {
                 rating.classList.add('is-invalid');
@@ -133,11 +162,44 @@
                 rating.classList.remove('is-invalid');
             }
 
-            // Show appropriate alert
             if (isValid) {
-                successAlert.classList.remove('hidden');
-                successAlert.classList.add('slide-in');
-                document.getElementById('surveyForm').reset();
+                // Prepare data for API submission
+                const formData = {
+                    name: name.value.trim(),
+                    email: email.value.trim(),
+                    rating: rating.value,
+                    comments: comments.value.trim()
+                };
+
+                // Send data to API
+                fetch('https://prod-248.westeurope.logic.azure.com:443/workflows/44d1310bf2da49099fcba64a5aacdb90/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=LWf0NN2QHi0kzzLN5fl457tzUPhJGWA_awk9MeHgLuA', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    
+                    // Fade out the form
+                    document.getElementById('surveyForm').classList.add('fade-out');
+                    
+                    // After the form fades out, show the success message
+                    setTimeout(() => {
+                        document.getElementById('surveyForm').style.display = 'none';
+                        document.getElementById('title').style.display = 'none';
+                        successMessage.classList.remove('hidden');
+                        successMessage.classList.add('fade-in');
+                    }, 1000);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    errorAlert.textContent = 'חלה שגיאה בעת שליחת הטופס. אנא נסה שוב.';
+                    errorAlert.classList.remove('hidden');
+                    errorAlert.classList.add('slide-in');
+                });
             } else {
                 errorAlert.classList.remove('hidden');
                 errorAlert.classList.add('slide-in');
