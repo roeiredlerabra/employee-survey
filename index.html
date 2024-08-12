@@ -52,6 +52,24 @@
             font-weight: bold;
             color: #28a745;
         }
+.rating-icons {
+    display: flex;
+    justify-content: flex-start;
+    height: 35px;
+}
+
+.icon-face {
+    margin-right: 10px; /* Adjust spacing between icons as needed */
+}
+
+.icon-face img {
+    width: 40px; /* Adjust size as needed */
+    cursor: pointer;
+    transition: filter 0.3s ease;
+}
+
+
+
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
@@ -76,20 +94,52 @@
                 </div>
             </div>
 
-            <div class="mb-4">
-                <label for="rating" class="form-label">איך היית מדרג את תהליך הגיוס? <span class="text-red-500">*</span></label>
-                <select id="rating" class="form-select">
-                    <option value="">בחר</option>
-                    <option value="1">1 - גרוע</option>
-                    <option value="2">2 - לא טוב</option>
-                    <option value="3">3 - בסדר</option>
-                    <option value="4">4 - טוב</option>
-                    <option value="5">5 - מצוין</option>
-                </select>
-                <div class="invalid-feedback">
-                    יש לבחור דירוג.
-                </div>
-            </div>
+<div class="mb-4">
+    <label class="form-label">איך היית מדרג את תהליך הגיוס? <span class="text-red-500">*</span></label>
+    <div class="rating-icons flex justify-between">
+        <input type="radio" name="rating" value="1" id="rating-1" class="hidden" required>
+        <label for="rating-1" class="icon-face">
+            <img src="https://cdn.forms.office.net/forms/images/formspro/senti-very-negative-grey.svg" 
+                 alt="גרוע"
+                 data-color-src="https://cdn.forms.office.net/forms/images/formspro/senti-very-negative.svg">
+        </label>
+        
+        <input type="radio" name="rating" value="2" id="rating-2" class="hidden" required>
+        <label for="rating-2" class="icon-face">
+            <img src="https://cdn.forms.office.net/forms/images/formspro/senti-negative-grey.svg" 
+                 alt="לא טוב"
+                 data-color-src="https://cdn.forms.office.net/forms/images/formspro/senti-negative.svg">
+        </label>
+        
+        <input type="radio" name="rating" value="3" id="rating-3" class="hidden" required>
+        <label for="rating-3" class="icon-face">
+            <img src="https://cdn.forms.office.net/forms/images/formspro/senti-neutral-grey.svg" 
+                 alt="בסדר"
+                 data-color-src="https://cdn.forms.office.net/forms/images/formspro/senti-neutral.svg">
+        </label>
+        
+        <input type="radio" name="rating" value="4" id="rating-4" class="hidden" required>
+        <label for="rating-4" class="icon-face">
+            <img src="https://cdn.forms.office.net/forms/images/formspro/senti-positive-grey.svg" 
+                 alt="טוב"
+                 data-color-src="https://cdn.forms.office.net/forms/images/formspro/senti-positive.svg">
+        </label>
+        
+    <input type="radio" name="rating" value="5" id="rating-5" class="hidden" required>
+    <label for="rating-5" class="icon-face">
+        <img src="https://cdn.forms.office.net/forms/images/formspro/senti-very-positive-grey.svg" 
+             alt="מצוין"
+             data-color-src="https://cdn.forms.office.net/forms/images/formspro/senti-very-positive.svg">
+    </label>
+</div>
+    <div class="invalid-feedback">
+        יש לבחור דירוג.
+    </div>
+</div>
+
+
+
+
 
             <div class="mb-4 col-span-1 md:col-span-2">
                 <label for="comments" class="form-label">הערות נוספות</label>
@@ -113,98 +163,153 @@
     </div>
 
     <script>
-        document.getElementById('email').addEventListener('input', function() {
-            validateEmail();
+       document.addEventListener('DOMContentLoaded', function() {
+    // Email validation
+    document.getElementById('email').addEventListener('input', validateEmail);
+
+    // Rating icon functionality
+    initializeRatingIcons();
+
+    // Submit button event listener
+    document.querySelector('button[type="button"]').addEventListener('click', validateAndSubmitForm);
+});
+
+function validateEmail() {
+    const email = document.getElementById('email');
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!emailPattern.test(email.value.trim())) {
+        email.classList.add('is-invalid');
+    } else {
+        email.classList.remove('is-invalid');
+    }
+}
+
+function validateAndSubmitForm() {
+    const name = document.getElementById('name');
+    const email = document.getElementById('email');
+    const rating = document.querySelector('input[name="rating"]:checked');
+    const comments = document.getElementById('comments');
+    const successMessage = document.getElementById('successMessage');
+    const errorAlert = document.getElementById('errorAlert');
+    const submitButtonContainer = document.getElementById('submitButtonContainer');
+    let isValid = true;
+
+    // Reset alerts
+    successMessage.classList.add('hidden');
+    errorAlert.classList.add('hidden');
+
+    // Validate fields
+    if (name.value.trim() === '') {
+        name.classList.add('is-invalid');
+        isValid = false;
+    } else {
+        name.classList.remove('is-invalid');
+    }
+
+    validateEmail(); // Ensure email validation is applied
+    if (email.classList.contains('is-invalid')) {
+        isValid = false;
+    }
+
+    if (!rating) {
+        document.querySelector('.rating-icons').classList.add('is-invalid');
+        isValid = false;
+    } else {
+        document.querySelector('.rating-icons').classList.remove('is-invalid');
+    }
+
+    if (isValid) {
+        submitForm({
+            name: name.value.trim(),
+            email: email.value.trim(),
+            rating: rating.value,
+            comments: comments.value.trim()
+        });
+    } else {
+        showError();
+    }
+}
+
+function submitForm(formData) {
+    fetch('https://prod-248.westeurope.logic.azure.com:443/workflows/44d1310bf2da49099fcba64a5aacdb90/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=LWf0NN2QHi0kzzLN5fl457tzUPhJGWA_awk9MeHgLuA', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+        showSuccessMessage();
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        showError('חלה שגיאה בעת שליחת הטופס. אנא נסה שוב.');
+    });
+}
+
+function showSuccessMessage() {
+    document.getElementById('surveyForm').classList.add('fade-out');
+    
+    setTimeout(() => {
+        document.getElementById('surveyForm').style.display = 'none';
+        document.getElementById('title').style.display = 'none';
+        document.getElementById('successMessage').classList.remove('hidden');
+        document.getElementById('successMessage').classList.add('fade-in');
+    }, 1000);
+}
+
+function showError(message = 'יש למלא את כל השדות הנדרשים.') {
+    const errorAlert = document.getElementById('errorAlert');
+    errorAlert.textContent = message;
+    errorAlert.classList.remove('hidden');
+    errorAlert.classList.add('slide-in');
+}
+
+function initializeRatingIcons() {
+    const ratingContainer = document.querySelector('.rating-icons');
+    const ratingInputs = ratingContainer.querySelectorAll('input[type="radio"]');
+    const ratingLabels = ratingContainer.querySelectorAll('.icon-face');
+
+    ratingLabels.forEach((label, index) => {
+        const input = ratingInputs[index];
+        const img = label.querySelector('img');
+        const greySrc = img.src.includes('-grey') ? img.src : img.src.replace('.svg', '-grey.svg');
+        const colorSrc = img.dataset.colorSrc;
+
+        label.addEventListener('mouseenter', () => {
+            if (!input.checked) {
+                img.src = colorSrc;
+            }
         });
 
-        function validateEmail() {
-            const email = document.getElementById('email');
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            
-            if (!emailPattern.test(email.value.trim())) {
-                email.classList.add('is-invalid');
-            } else {
-                email.classList.remove('is-invalid');
+        label.addEventListener('mouseleave', () => {
+            if (!input.checked) {
+                img.src = greySrc;
             }
+        });
+
+        input.addEventListener('change', () => {
+            updateRatingIcons(ratingLabels, ratingInputs);
+        });
+    });
+}
+
+function updateRatingIcons(labels, inputs) {
+    labels.forEach((label, index) => {
+        const img = label.querySelector('img');
+        const greySrc = img.src.includes('-grey') ? img.src : img.src.replace('.svg', '-grey.svg');
+        const colorSrc = img.dataset.colorSrc;
+
+        if (inputs[index].checked) {
+            img.src = colorSrc;
+        } else {
+            img.src = greySrc;
         }
-
-        function validateAndSubmitForm() {
-            const name = document.getElementById('name');
-            const email = document.getElementById('email');
-            const rating = document.getElementById('rating');
-            const comments = document.getElementById('comments');
-            const successMessage = document.getElementById('successMessage');
-            const errorAlert = document.getElementById('errorAlert');
-            const submitButtonContainer = document.getElementById('submitButtonContainer');
-            let isValid = true;
-
-            // Reset alerts
-            successMessage.classList.add('hidden');
-            errorAlert.classList.add('hidden');
-
-            // Validate fields
-            if (name.value.trim() === '') {
-                name.classList.add('is-invalid');
-                isValid = false;
-            } else {
-                name.classList.remove('is-invalid');
-            }
-
-            validateEmail(); // Ensure email validation is applied
-            if (email.classList.contains('is-invalid')) {
-                isValid = false;
-            }
-
-            if (rating.value === '') {
-                rating.classList.add('is-invalid');
-                isValid = false;
-            } else {
-                rating.classList.remove('is-invalid');
-            }
-
-            if (isValid) {
-                // Prepare data for API submission
-                const formData = {
-                    name: name.value.trim(),
-                    email: email.value.trim(),
-                    rating: rating.value,
-                    comments: comments.value.trim()
-                };
-
-                // Send data to API
-                fetch('https://prod-248.westeurope.logic.azure.com:443/workflows/44d1310bf2da49099fcba64a5aacdb90/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=LWf0NN2QHi0kzzLN5fl457tzUPhJGWA_awk9MeHgLuA', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Success:', data);
-                    
-                    // Fade out the form
-                    document.getElementById('surveyForm').classList.add('fade-out');
-                    
-                    // After the form fades out, show the success message
-                    setTimeout(() => {
-                        document.getElementById('surveyForm').style.display = 'none';
-                        document.getElementById('title').style.display = 'none';
-                        successMessage.classList.remove('hidden');
-                        successMessage.classList.add('fade-in');
-                    }, 1000);
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                    errorAlert.textContent = 'חלה שגיאה בעת שליחת הטופס. אנא נסה שוב.';
-                    errorAlert.classList.remove('hidden');
-                    errorAlert.classList.add('slide-in');
-                });
-            } else {
-                errorAlert.classList.remove('hidden');
-                errorAlert.classList.add('slide-in');
-            }
-        }
+    });
+}
     </script>
 
 </body>
